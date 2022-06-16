@@ -6,8 +6,13 @@ import linecache
 import pandas
 import os
 from tkinter import filedialog, Tk,ttk
+import fill_client_dict
 
 fixed_lines = []
+
+perm_dict = fill_client_dict.main()
+
+        
 
 for i in range(0,4):
 
@@ -43,9 +48,6 @@ for i in range(0,4):
         if "Duplicate" in particular_line: continue
         #After formatting the line we added to the lines list
         lines.append(particular_line)
-
-    for line in lines:
-        print(line)
 
     # Splitting the strings in lines into lists
 
@@ -120,10 +122,32 @@ for permanent in permanents:
                 case _: continue
         else:
             continue
-        
-
+    try:
+        customer = perm_dict[permanent]['Customer']
+    except KeyError:
+        for key, value in perm_dict.items():
+            if key.startswith(permanent):
+                customer = value['Customer']
+                break
+            else: customer = 'Customer not found, add manually'
+    try:
+        origin = perm_dict[permanent]['Origin']
+    except KeyError:
+        for key, value in perm_dict.items():
+            if key.startswith(permanent):
+                origin = value['Origin']
+                break
+            else: origin = 'Origin not found, add manually'
+    try:
+        destination = perm_dict[permanent]['Destinations'].rstrip(' // ').replace(' //',',\n')
+    except KeyError:
+        for key, value in perm_dict.items():
+            if key.startswith(permanent):
+                destination = value['Destinations'].rstrip(' // ').replace(' //',',\n')
+                break
+            else: destination = 'Destination not found, add manually'
     # We pass the information to our issue list with the final data.
-    tmp_lst = [permanent, equipment1, link_degradation1, link_outage1, equipment2, link_degradation2, link_outage2, equipment3, link_degradation3, link_outage3, equipment4, link_degradation4, link_outage4, total_equipment, total_degradation, total_outage, total]
+    tmp_lst = [permanent, customer, origin, destination, equipment1, link_degradation1, link_outage1, equipment2, link_degradation2, link_outage2, equipment3, link_degradation3, link_outage3, equipment4, link_degradation4, link_outage4, total_equipment, total_degradation, total_outage, total]
     issue_list.append(tmp_lst)
 
 
@@ -131,7 +155,7 @@ for permanent in permanents:
 # Generate dataframe from list and write to xlsx.
 
 # Creating a header list to be the headers on the final excel file.
-header = ['Permanent','Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage', 'Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Total']
+header = ['Affected Customer Circuit','Client', 'Origin', 'Destination', 'Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage', 'Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Total']
 # Passing the issue_list as the dataframe to be written into the excel file.
 df = pandas.DataFrame(issue_list)
 
@@ -139,7 +163,14 @@ df = pandas.DataFrame(issue_list)
 df.columns = header
 
 # Creating our excel file.
-df.to_excel('output.xlsx',header=True, index= False)
+while True:
+    try:
+        df.to_excel('output.xlsx',header=True, index= False)
+    except PermissionError:
+        input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
+    
+    break
+        
 
 print("File generated on", os.getcwd())
 
