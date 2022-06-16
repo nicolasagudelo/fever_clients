@@ -1,7 +1,5 @@
 # Author: Nicolas Agudelo
 
-# Open the file
-
 import linecache
 import pandas
 import os
@@ -12,7 +10,7 @@ fixed_lines = []
 
 perm_dict = fill_client_dict.main()
 
-        
+# Open the files
 
 for i in range(0,4):
 
@@ -21,9 +19,12 @@ for i in range(0,4):
     frm = ttk.Frame(root, padding=10)
     frm.grid()
     ttk.Label(frm, text="Select file #{n}".format(n = i+1)).grid(column=0, row=0)
-
     dirname = filedialog.askopenfilename(parent=root, initialdir=os.getcwd(),
                                         title='Please select file #{n}'.format(n = i + 1))
+
+    if (len(dirname) == 0):
+        print('Leaving program.')
+        exit()
 
     # Parse information of the file into lists
 
