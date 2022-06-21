@@ -1,113 +1,76 @@
-# Author: Nicolas Agudelo
-
-import linecache
 import pandas as pd
-from os import getcwd
+from os import getcwd, startfile
 from tkinter import filedialog, Tk,ttk
 import fill_client_dict
 
-fixed_lines = []
+# Normalized list will have the data we need from the csvs organized as we want it to be able to manipulate it.
+normalized_list = []
 
+#fill client dict will get a dictionary with all the Permanents with their clients, origins, and destinations.
 perm_dict = fill_client_dict.main()
 
-# Open the files
-
+# Loop through the files corresponding to the last 4 weeks.
 for i in range(0,4):
-
+    # Create a window to ask the user where the files are located.
     root = Tk()
 
     frm = ttk.Frame(root, padding=10)
     frm.grid()
-    ttk.Label(frm, text="Select file #{n}".format(n = i+1)).grid(column=0, row=0)
+    ttk.Label(frm, text="Select file #{n}".format(n = i + 1)).grid(column=0, row=0)
     dirname = filedialog.askopenfilename(parent=root, initialdir=getcwd(),
                                         title='Please select file #{n}'.format(n = i + 1))
 
-
+    # If the user closes the file dialog window we exit the script.
     if (len(dirname) == 0):
         print('Leaving program.')
         exit()
 
-    # Parse information of the file into lists
-
+    # We close the window once we have what we need.
     root.destroy()
 
     ####################### USING PANDAS #####################
 
+    # We set our dataframe to be equal to the csv the user selected.
     df = pd.read_csv(dirname)
 
+    # At the moment the first row is always row number 6
     first_row = 6
+    # We get the last row by looking for the index of the first row that has the text 'Generated on:' on the first column
     last_row = df[df.iloc[:, 0] == 'Generated on:'].index[0]
 
-    pd.options.display.max_rows = 1000
-    pd.options.display.max_columns = 20
+    pd.options.display.max_rows = 100
+    pd.options.display.max_columns = 10
 
-    lst = []
+    # We get the info we want from the csv and pass it into a list, then we put that list into normalized list as a new item
+    for j in range(first_row,last_row):
+        tmp_lst = [df.iloc[j, 1], df.iloc[j, 3], df.iloc[j, 6], df.iloc[j, 5], str(i+1)]
+        normalized_list.append(tmp_lst)
 
-    for i in range(first_row,last_row):
-        tmp_lst = [df.iloc[i, 1], df.iloc[i, 3], df.iloc[i, 6]]
-        lst.append(tmp_lst)
+# Headers of our dataframe
+header = ['Resolution', 'Permanent', 'Issue', 'Jira', 'Week']
 
-    print('\n')
-    for line in lst:
-        print (line)
+df2 = pd.DataFrame(normalized_list).fillna(value="---> NO INFO <---")
+df2.columns = header
 
-    header = ['Resolution', 'Permanent', 'Issue']
+# We print the dataframe with the info that is going to be used to the User so he can check one last time before creating the file.
+print(df2)
 
-    df2 = pd.DataFrame(lst)
-    df2.columns = header
+input('\nThis is the information that will be used to generate the report.\nPress Enter if you want to continue')
 
-    print(df2)
-
-    count_issues = df2.pivot_table(columns=['Issue'], aggfunc='size')
-
-    print(count_issues)
-    # colocar try except con key error si hay key error poner la variable en 0 si no ponla igual al numero que conto
-    print(count_issues['Customer'])
-
-    ################################# Using linecache #############################################
-
-    lines = []
-
-    # Define the range by taking the first line you want to take (inclusive) and the line after the last
-    # you want to use (exclusive)
-
-    first_line = 8 #int(input ("Write the start line to read the file\n"))
-    last_line = int(input ("Write the last line to read the file\n"))
-    last_line = last_line + 1
-
-    for line in range(first_line, last_line, 1):
-        particular_line = linecache.getline(dirname,line)
-        particular_line = particular_line.replace(';',',')
-        particular_line = particular_line.strip(',')
-        particular_line = particular_line.strip('\n')
-        particular_line = particular_line.strip(',,')
-        particular_line = particular_line.replace(',,',',')
-        if "Duplicate" in particular_line: continue
-        #After formatting the line we added to the lines list
-        lines.append(particular_line)
-
-    # Splitting the strings in lines into lists
-
-    for line in lines:
-        list_line = line.split(",")
-        list_line.pop()
-        list_line.append(str(i+1))
-        fixed_lines.append(list_line)
-
-# Create a list with only one instance of each permanent on the file
+# Create a list with only one instance of each permanent
 permanents = []
 
-for line in fixed_lines:
+for line in normalized_list:
     # We check if the permanent is already on the permanent list, if so we continue if not we add it
     if line[1] in permanents:
         continue
+    # If not we add it to the list.
     permanents.append(line[1])
 
-# issue_list will be the list were we will have the info we ultimately wanted:
-# Permanent name, equipment issues, link degradation, link outage.
 issue_list = []
 
 for permanent in permanents:
+    # Initialize our counters for each issue that we want to keep track of.
     equipment1 = 0
     link_degradation1 = 0
     link_outage1 = 0
@@ -124,10 +87,12 @@ for permanent in permanents:
     total_degradation = 0
     total_outage = 0
     total = 0
-    for line in fixed_lines:
-        # We extract what was the issue for each line
-        issue = line[3]
-        week = line[8]
+    for line in normalized_list:
+        if line[0] == 'Duplicate':
+            continue
+        # We extract what was the issue for each line and in which week happened.
+        issue = line[2]
+        week = line[4]
         # We check that the permanent we are checking is the one being affected in this line
         if permanent == line[1] and week == '1':# if the permanent we are checking matches the permanent in this line and corresponds to week 1
             match issue:
@@ -187,8 +152,6 @@ for permanent in permanents:
     tmp_lst = [permanent, customer, origin, destination, equipment1, link_degradation1, link_outage1, equipment2, link_degradation2, link_outage2, equipment3, link_degradation3, link_outage3, equipment4, link_degradation4, link_outage4, total_equipment, total_degradation, total_outage, total]
     issue_list.append(tmp_lst)
 
-
-
 # Generate dataframe from list and write to xlsx.
 
 # Creating a header list to be the headers on the final excel file.
@@ -208,5 +171,16 @@ while True:
     
     break
         
-
+# We tell the user where the file is located.
 print("File generated on", getcwd())
+
+input("Press Enter to open the file and close this window.")
+
+# We try to open the file so the user can see it right away.
+try:
+    file = getcwd() + "\\output.xlsx"
+    print ("Attempting to open file")
+    startfile(file)
+except FileNotFoundError:
+    print("Unable to open file, try opening it normally.")
+    exit()
