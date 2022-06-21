@@ -1,8 +1,8 @@
 # Author: Nicolas Agudelo
 
 import linecache
-import pandas
-import os
+import pandas as pd
+from os import getcwd
 from tkinter import filedialog, Tk,ttk
 import fill_client_dict
 
@@ -19,8 +19,9 @@ for i in range(0,4):
     frm = ttk.Frame(root, padding=10)
     frm.grid()
     ttk.Label(frm, text="Select file #{n}".format(n = i+1)).grid(column=0, row=0)
-    dirname = filedialog.askopenfilename(parent=root, initialdir=os.getcwd(),
+    dirname = filedialog.askopenfilename(parent=root, initialdir=getcwd(),
                                         title='Please select file #{n}'.format(n = i + 1))
+
 
     if (len(dirname) == 0):
         print('Leaving program.')
@@ -29,6 +30,41 @@ for i in range(0,4):
     # Parse information of the file into lists
 
     root.destroy()
+
+    ####################### USING PANDAS #####################
+
+    df = pd.read_csv(dirname)
+
+    first_row = 6
+    last_row = df[df.iloc[:, 0] == 'Generated on:'].index[0]
+
+    pd.options.display.max_rows = 1000
+    pd.options.display.max_columns = 20
+
+    lst = []
+
+    for i in range(first_row,last_row):
+        tmp_lst = [df.iloc[i, 1], df.iloc[i, 3], df.iloc[i, 6]]
+        lst.append(tmp_lst)
+
+    print('\n')
+    for line in lst:
+        print (line)
+
+    header = ['Resolution', 'Permanent', 'Issue']
+
+    df2 = pd.DataFrame(lst)
+    df2.columns = header
+
+    print(df2)
+
+    count_issues = df2.pivot_table(columns=['Issue'], aggfunc='size')
+
+    print(count_issues)
+    # colocar try except con key error si hay key error poner la variable en 0 si no ponla igual al numero que conto
+    print(count_issues['Customer'])
+
+    ################################# Using linecache #############################################
 
     lines = []
 
@@ -158,7 +194,7 @@ for permanent in permanents:
 # Creating a header list to be the headers on the final excel file.
 header = ['Affected Customer Circuit','Client', 'Origin', 'Destination', 'Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage', 'Equipment Problem','Link Degradation','Link Outage','Equipment Problem','Link Degradation','Link Outage','Total']
 # Passing the issue_list as the dataframe to be written into the excel file.
-df = pandas.DataFrame(issue_list)
+df = pd.DataFrame(issue_list)
 
 # Adding a header to our dataframe (df).
 df.columns = header
@@ -173,12 +209,4 @@ while True:
     break
         
 
-print("File generated on", os.getcwd())
-
-
-
-
-    
-
-
-
+print("File generated on", getcwd())
