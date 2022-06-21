@@ -174,11 +174,11 @@ while True:
         
 
 print("File generated on", os.getcwd())
-
-
-
-
-    
-
-
-
+input("Press Enter to close this window.")
+try:
+    file = os.getcwd() + "\\output.xlsx"
+    print ("Attempting to open file")
+    os.startfile(file)
+except FileNotFoundError:
+    print("Unable to open file, try opening it normally.")
+    exit()
