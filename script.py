@@ -1,7 +1,9 @@
+import openpyxl
 import pandas as pd
 from os import getcwd, startfile
 from tkinter import filedialog, Tk,ttk
 import fill_client_dict
+from openpyxl.styles import PatternFill, Font, Alignment, Side, Border
 
 # Normalized list will have the data we need from the csvs organized as we want it to be able to manipulate it.
 normalized_list = []
@@ -55,7 +57,8 @@ df2.columns = header
 # We print the dataframe with the info that is going to be used to the User so he can check one last time before creating the file.
 print(df2)
 
-input('\nThis is the information that will be used to generate the report.\nPress Enter if you want to continue')
+print('\nThis is the information that will be used to generate the report.')
+input('\nPress Enter if you want to continue')
 
 # Create a list with only one instance of each permanent
 permanents = []
@@ -170,6 +173,104 @@ while True:
         input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
     
     break
+
+# Styling the final document
+
+# First open the document with the information.
+wb = openpyxl.load_workbook('output.xlsx')
+ws = wb['Sheet1']
+ws.page_setup.fitToHeight = 1
+ws.page_setup.fitToWidth = 1
+# Setup the width of the columns.
+ws.column_dimensions['A'].width = 23.57
+ws.column_dimensions['B'].width = 33.14
+ws.column_dimensions['C'].width = 29.86
+ws.column_dimensions['D'].width = 44.14
+ws.column_dimensions['U'].width = 78.43
+ws.column_dimensions['V'].width = 78.43
+# Fill the headers with the selected color.
+fill_cell = PatternFill(patternType='solid', fgColor='DCE6F1')
+# Define the font and borders
+text_color = Font(color='000000', bold=True)
+medium = Side(border_style="medium", color="000000")
+thin = Side(border_style="thin", color="000000")
+# Adding two columns
+ws['U1'] = 'Actions Taken' 
+ws['V1'] = 'Comments'
+ws['U1'].border = Border(top=thin, left=thin, right= thin, bottom=thin)
+ws['V1'].border = Border(top=thin, left=thin, right= thin, bottom=thin) 
+# Set up filters
+ws.auto_filter.ref = 'A3:T3'
+column_name = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V']
+vertical_cells = ['E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T']
+# Apply styles to the headers.
+for cell in column_name:
+    ws[cell+'1'].fill = fill_cell
+    ws[cell+'1'].font = text_color
+    ws[cell+'1'].alignment = Alignment(horizontal='center', vertical='center')
+    if cell in vertical_cells:
+        ws.column_dimensions[cell].width = 5
+        ws[cell+'1'].alignment = Alignment(text_rotation=90, horizontal='center', vertical='center')
+
+ws.auto_filter.add_sort_condition("T4:T150",descending=True)
+
+# Add rows to write new information above of the table.
+ws.insert_rows(1,2)
+
+center = Alignment(horizontal="center", vertical="center")
+medium_border = Border(top=medium, left=medium, right= medium, bottom=medium) 
+calibri_10_bold = Font('Calibri', 10, color='000000', bold= True)
+
+ws['A1'] = 'Fever Client 00 Jan - 00 Dec'
+ws['A1'].font = calibri_10_bold
+ws['A1'].alignment = center
+ws['A1'].border = medium_border
+ws.merge_cells('A1:A2')
+
+ws['B1'].alignment = center
+ws['B1'].border = medium_border
+ws.merge_cells('B1:D2')
+
+ws['E1'] = 'Week'
+ws['E1'].font = calibri_10_bold
+ws['E1'].alignment = center
+ws['E1'].border = medium_border
+ws.merge_cells('E1:P1')
+
+ws['E2'] = '00 Jan - 00 Dec'
+ws['E2'].font = calibri_10_bold
+ws['E2'].alignment = center
+ws['E2'].border = medium_border
+ws.merge_cells('E2:G2')
+
+ws['H2'] = '00 Jan - 00 Dec'
+ws['H2'].font = calibri_10_bold
+ws['H2'].alignment = center
+ws['H2'].border = medium_border
+ws.merge_cells('H2:J2')
+
+ws['K2'] = '00 Jan - 00 Dec'
+ws['K2'].font = calibri_10_bold
+ws['K2'].alignment = center
+ws['K2'].border = medium_border
+ws.merge_cells('K2:M2')
+
+ws['N2'] = '00 Jan - 00 Dec'
+ws['N2'].font = calibri_10_bold
+ws['N2'].alignment = center
+ws['N2'].border = medium_border
+ws.merge_cells('N2:P2')
+
+ws['Q1'] = 'Total'
+ws['Q1'].font = calibri_10_bold
+ws['Q1'].alignment = center
+ws['Q1'].border = medium_border
+ws.merge_cells('Q1:T2')
+
+
+
+#Save the styled file.
+wb.save('output.xlsx')
         
 # We tell the user where the file is located.
 print("File generated on", getcwd())

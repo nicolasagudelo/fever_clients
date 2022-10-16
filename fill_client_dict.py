@@ -1,5 +1,3 @@
-from math import perm
-from time import sleep
 import pandas as pd
 
 def main():
