@@ -178,6 +178,8 @@ while True:
 
 # First open the document with the information.
 wb = openpyxl.load_workbook('output.xlsx')
+final_df = pd.read_excel('output.xlsx')
+number_of_rows = df.shape[0]
 ws = wb['Sheet1']
 ws.page_setup.fitToHeight = 1
 ws.page_setup.fitToWidth = 1
@@ -211,6 +213,8 @@ for cell in column_name:
     if cell in vertical_cells:
         ws.column_dimensions[cell].width = 5
         ws[cell+'1'].alignment = Alignment(text_rotation=90, horizontal='center', vertical='center')
+    for i in range (1, number_of_rows + 2):
+        ws[cell+str(i)].border = Border(top=thin, left=thin, right= thin, bottom=thin)
 
 ws.auto_filter.add_sort_condition("T4:T150",descending=True)
 
