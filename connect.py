@@ -6,61 +6,107 @@ from selenium.webdriver.common.by import By
 from time import sleep
 import datetime
 from pathlib import Path
+from os import rename, mkdir
+from shutil import move, rmtree
 
 downloads_path = str(Path.home() / "Downloads")
 
-print(downloads_path)
-
 today = datetime.date.today()
 
-##################################
-############# LOGIN ##############
-##################################
 username = "nmc"
 
 driver = webdriver.Edge('msedgedriver')
+weeks_list = []
 
-driver.get('http://avjaspsrvr/jasperserver/login.html?showPasswordChange=null/')
+def main(working_directory):
 
-driver.find_element('name', 'j_username').send_keys(username)
-driver.find_element('name', 'j_password').send_keys(username)
-driver.find_element('name','btnsubmit').click()
+    ##################################
+    ############# LOGIN ##############
+    ##################################
 
-# wait the ready state to be complete
-WebDriverWait(driver=driver, timeout=10).until(
-    lambda x: x.execute_script("return document.readyState === 'complete'")
-)
-error_message = "Incorrect username or password."
-# get the errors (if there are)
-errors = driver.find_elements("css selector", ".flash-error")
-# print the errors optionally
-# for e in errors:
-#     print(e.text)
-# if we find that error message within errors, then login is failed
-if any(error_message in e.text for e in errors):
-    print("[!] Login failed")
-else:
-    print("[+] Login successful")
+    driver.get('http://avjaspsrvr/jasperserver/login.html?showPasswordChange=null/')
 
-#####################################
-######## GENERATE REPORTS ###########
-#####################################
+    driver.find_element('name', 'j_username').send_keys(username)
+    driver.find_element('name', 'j_password').send_keys(username)
+    driver.find_element('name','btnsubmit').click()
 
-week = 0
+    # wait the ready state to be complete
+    WebDriverWait(driver=driver, timeout=10).until(
+        lambda x: x.execute_script("return document.readyState === 'complete'")
+    )
+    error_message = "Incorrect username or password."
+    # get the errors (if there are)
+    errors = driver.find_elements("css selector", ".flash-error")
+    # print the errors optionally
+    # for e in errors:
+    #     print(e.text)
+    # if we find that error message within errors, then login is failed
+    if any(error_message in e.text for e in errors):
+        print("[!] Login failed")
+    else:
+        print("[+] Login successful")
 
-for index in range (0, 5):
-    driver.get('http://avjaspsrvr/jasperserver/flow.html?_flowId=viewReportFlow&reportUnit=/Aldeavision_Reports_Definition/JIRA_Reports/NetworkMaintenance/MonthlyServiceAvailability&standAlone=true&ParentFolderUri=/Aldeavision_Reports_Definition/JIRA_Reports/NetworkMaintenance')
+    #####################################
+    ######## GENERATE REPORTS ###########
+    #####################################
 
-    last_monday = today - datetime.timedelta(days=today.weekday(), weeks = week + 1)
-    this_sunday = today - datetime.timedelta(days=today.weekday() + 1, weeks = week)
+    week = 0
 
-    driver.find_element('id', 'start_date').send_keys(last_monday.strftime('%m-%d-%Y'))
-    driver.find_element('id', 'end_date').send_keys(this_sunday.strftime('%m-%d-%Y'))
-    buttons = driver.find_elements(By.CLASS_NAME, "insidebutton")
-    buttons[1].click()
+    try:
+        rmtree('{desktop_path}/GeneratedCSVs'.format(desktop_path = working_directory))
+    except OSError as error:
+        pass
+        # print(error)
 
-    sleep(10)
+    try:
+        mkdir('{desktop_path}/GeneratedCSVs'.format(desktop_path = working_directory))
+    except OSError as error:
+        pass
+        # print(error)
 
-    img_tag_elements = driver.find_elements(By.TAG_NAME, 'img')
-    img_tag_elements[9].click()
-    week += 1
+    for index in range (4, 0, -1):
+        driver.get('http://avjaspsrvr/jasperserver/flow.html?_flowId=viewReportFlow&reportUnit=/Aldeavision_Reports_Definition/JIRA_Reports/NetworkMaintenance/MonthlyServiceAvailability&standAlone=true&ParentFolderUri=/Aldeavision_Reports_Definition/JIRA_Reports/NetworkMaintenance')
+
+        last_monday = today - datetime.timedelta(days=today.weekday(), weeks = week + 1)
+        this_sunday = today - datetime.timedelta(days=today.weekday() + 1, weeks = week)
+
+        weeks_list.append('{last_monday} - {this_sunday}'.format(last_monday = last_monday.strftime('%d-%b'), this_sunday = this_sunday.strftime('%d-%b')))
+
+        driver.find_element('id', 'start_date').send_keys(last_monday.strftime('%m-%d-%Y'))
+        driver.find_element('id', 'end_date').send_keys(this_sunday.strftime('%m-%d-%Y'))
+        buttons = driver.find_elements(By.CLASS_NAME, "insidebutton")
+        buttons[1].click()
+
+        # sleep(10)
+        while True:
+            try:
+                img_tag_elements = driver.find_elements(By.TAG_NAME, 'img')
+                img_tag_elements[9].click()
+                break
+            except:
+                continue
+
+        while True:
+            try:
+                rename("{download_folder}/MonthlyServiceAvailability.csv".format(download_folder = downloads_path), '{desktop_folder}/GeneratedCSVs/{index}. Report from {monday} to {sunday}.csv'.format(desktop_folder = working_directory, monday = last_monday, sunday = this_sunday, index = index - 1))
+                break
+            # If Source is a file 
+            # but destination is a directory
+            except IsADirectoryError:
+                print("Source is a file but destination is a directory.")
+            
+            # If source is a directory
+            # but destination is a file
+            except NotADirectoryError:
+                print("Source is a directory but destination is a file.")
+            
+            # For permission related errors
+            except PermissionError:
+                print("Operation not permitted.")
+            
+            # For other errors
+            except OSError as error:
+                # print(error)
+                continue
+        week += 1
+    return weeks_list

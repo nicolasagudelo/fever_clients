@@ -1,8 +1,8 @@
 import openpyxl
 import pandas as pd
-from os import getcwd, startfile
+from os import getcwd, startfile, path, listdir
 from tkinter import filedialog, Tk,ttk
-import fill_client_dict
+import fill_client_dict, connect
 from openpyxl.styles import PatternFill, Font, Alignment, Side, Border
 
 # Normalized list will have the data we need from the csvs organized as we want it to be able to manipulate it.
@@ -11,29 +11,41 @@ normalized_list = []
 #fill client dict will get a dictionary with all the Permanents with their clients, origins, and destinations.
 perm_dict = fill_client_dict.main()
 
+current_directory = getcwd()
+
+
+dirname = r'{current_directory}\\GeneratedCSVs'.format(current_directory = current_directory)
+
+print(dirname)
+
+weeks = connect.main(current_directory)
+
+list_of_files = sorted( filter( lambda x: path.isfile(path.join(dirname, x)),
+                        listdir(dirname) ) )
+
 # Loop through the files corresponding to the last 4 weeks.
 for i in range(0,4):
-    # Create a window to ask the user where the files are located.
-    root = Tk()
+    # # Create a window to ask the user where the files are located.
+    # root = Tk()
 
-    frm = ttk.Frame(root, padding=10)
-    frm.grid()
-    ttk.Label(frm, text="Select file #{n}".format(n = i + 1)).grid(column=0, row=0)
-    dirname = filedialog.askopenfilename(parent=root, initialdir=getcwd(),
-                                        title='Please select file #{n}'.format(n = i + 1))
+    # frm = ttk.Frame(root, padding=10)
+    # frm.grid()
+    # ttk.Label(frm, text="Select file #{n}".format(n = i + 1)).grid(column=0, row=0)
+    # dirname = filedialog.askopenfilename(parent=root, initialdir=getcwd(),
+    #                                     title='Please select file #{n}'.format(n = i + 1))
 
-    # If the user closes the file dialog window we exit the script.
-    if (len(dirname) == 0):
-        print('Leaving program.')
-        exit()
+    # # If the user closes the file dialog window we exit the script.
+    # if (len(dirname) == 0):
+    #     print('Leaving program.')
+    #     exit()
 
-    # We close the window once we have what we need.
-    root.destroy()
+    # # We close the window once we have what we need.
+    # root.destroy()
 
     ####################### USING PANDAS #####################
 
     # We set our dataframe to be equal to the csv the user selected.
-    df = pd.read_csv(dirname)
+    df = pd.read_csv('{directory}\\{file}'.format(directory = dirname, file = list_of_files[i]))
 
     # At the moment the first row is always row number 6
     first_row = 6
@@ -169,10 +181,10 @@ df.columns = header
 while True:
     try:
         df.to_excel('output.xlsx',header=True, index= False)
+        break
     except PermissionError:
         input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
-    
-    break
+        continue
 
 # Styling the final document
 
@@ -225,7 +237,8 @@ center = Alignment(horizontal="center", vertical="center")
 medium_border = Border(top=medium, left=medium, right= medium, bottom=medium) 
 calibri_10_bold = Font('Calibri', 10, color='000000', bold= True)
 
-ws['A1'] = 'Fever Client 00 Jan - 00 Dec'
+# ws['A1'] = 'Fever Client 00 Jan - 00 Dec'
+ws['A1'] = 'Fever Client {weeks}'.format(weeks = weeks[3][:6] + ' - ' + weeks[0][-6:])
 ws['A1'].font = calibri_10_bold
 ws['A1'].alignment = center
 ws['A1'].border = medium_border
@@ -241,25 +254,29 @@ ws['E1'].alignment = center
 ws['E1'].border = medium_border
 ws.merge_cells('E1:P1')
 
-ws['E2'] = '00 Jan - 00 Dec'
+# ws['E2'] = '00 Jan - 00 Dec'
+ws['E2'] = weeks[3]
 ws['E2'].font = calibri_10_bold
 ws['E2'].alignment = center
 ws['E2'].border = medium_border
 ws.merge_cells('E2:G2')
 
-ws['H2'] = '00 Jan - 00 Dec'
+# ws['H2'] = '00 Jan - 00 Dec'
+ws['H2'] = weeks[2]
 ws['H2'].font = calibri_10_bold
 ws['H2'].alignment = center
 ws['H2'].border = medium_border
 ws.merge_cells('H2:J2')
 
-ws['K2'] = '00 Jan - 00 Dec'
+# ws['K2'] = '00 Jan - 00 Dec'
+ws['K2'] = weeks[1]
 ws['K2'].font = calibri_10_bold
 ws['K2'].alignment = center
 ws['K2'].border = medium_border
 ws.merge_cells('K2:M2')
 
-ws['N2'] = '00 Jan - 00 Dec'
+# ws['N2'] = '00 Jan - 00 Dec'
+ws['N2'] = weeks[0]
 ws['N2'].font = calibri_10_bold
 ws['N2'].alignment = center
 ws['N2'].border = medium_border
@@ -274,16 +291,22 @@ ws.merge_cells('Q1:T2')
 
 
 #Save the styled file.
-wb.save('output.xlsx')
+while True:
+    try:
+        wb.save('Report from {date}.xlsx'.format(date = weeks[3][:6] + ' - ' + weeks[0][-6:]))
+        break
+    except OSError:
+        input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
+        continue
         
 # We tell the user where the file is located.
-print("File generated on", getcwd())
+print("File generated on", current_directory)
 
 input("Press Enter to open the file and close this window.")
 
 # We try to open the file so the user can see it right away.
 try:
-    file = getcwd() + "\\output.xlsx"
+    file = current_directory + "\\Report from {date}.xlsx".format(date = weeks[3][:6] + ' - ' + weeks[0][-6:])
     print ("Attempting to open file")
     startfile(file)
 except FileNotFoundError:
