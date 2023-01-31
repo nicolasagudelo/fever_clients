@@ -20,6 +20,8 @@ print(dirname)
 
 weeks = connect.main(current_directory)
 
+file_name = 'Report from {date}.xlsx'.format(date = weeks[3][:6] + ' - ' + weeks[0][-6:])
+
 list_of_files = sorted( filter( lambda x: path.isfile(path.join(dirname, x)),
                         listdir(dirname) ) )
 
@@ -180,7 +182,7 @@ df.columns = header
 # Creating our excel file.
 while True:
     try:
-        df.to_excel('output.xlsx',header=True, index= False)
+        df.to_excel(file_name,header=True, index= False)
         break
     except PermissionError:
         input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
@@ -189,8 +191,8 @@ while True:
 # Styling the final document
 
 # First open the document with the information.
-wb = openpyxl.load_workbook('output.xlsx')
-final_df = pd.read_excel('output.xlsx')
+wb = openpyxl.load_workbook(file_name)
+final_df = pd.read_excel(file_name)
 number_of_rows = df.shape[0]
 ws = wb['Sheet1']
 ws.page_setup.fitToHeight = 1
@@ -293,7 +295,7 @@ ws.merge_cells('Q1:T2')
 #Save the styled file.
 while True:
     try:
-        wb.save('Report from {date}.xlsx'.format(date = weeks[3][:6] + ' - ' + weeks[0][-6:]))
+        wb.save(file_name)
         break
     except OSError:
         input('Close the file before attempting to create a new one.\nPress Enter once you have closed the file to attempt to create it again.')
@@ -306,7 +308,7 @@ input("Press Enter to open the file and close this window.")
 
 # We try to open the file so the user can see it right away.
 try:
-    file = current_directory + "\\Report from {date}.xlsx".format(date = weeks[3][:6] + ' - ' + weeks[0][-6:])
+    file = current_directory + "\\{file}".format(file = file_name)
     print ("Attempting to open file")
     startfile(file)
 except FileNotFoundError:
