@@ -4,6 +4,8 @@ from os import getcwd, startfile, path, listdir
 from tkinter import filedialog, Tk,ttk
 import fill_client_dict, connect
 from openpyxl.styles import PatternFill, Font, Alignment, Side, Border
+from openpyxl.formatting.rule import ColorScaleRule
+
 
 # Normalized list will have the data we need from the csvs organized as we want it to be able to manipulate it.
 normalized_list = []
@@ -230,8 +232,6 @@ for cell in column_name:
     for i in range (1, number_of_rows + 2):
         ws[cell+str(i)].border = Border(top=thin, left=thin, right= thin, bottom=thin)
 
-ws.auto_filter.add_sort_condition("T4:T150",descending=True)
-
 # Add rows to write new information above of the table.
 ws.insert_rows(1,2)
 
@@ -290,7 +290,17 @@ ws['Q1'].alignment = center
 ws['Q1'].border = medium_border
 ws.merge_cells('Q1:T2')
 
+# Rule to create the color scale gradiant for the total columns
+rule = ColorScaleRule(start_type='min', start_color='63BE7B',
+                       mid_type='percentile', mid_value=50, mid_color='FFEB84',
+                       end_type='max', end_color='F8696B')
 
+for cell in ws["T:T"]:
+    conditional_cells = cell.row
+    cell.font = text_color    
+
+ws.auto_filter.add_sort_condition("T:T",descending=True)
+ws.conditional_formatting.add("Q4:T{conditional}".format(conditional = conditional_cells), rule)
 
 #Save the styled file.
 while True:
