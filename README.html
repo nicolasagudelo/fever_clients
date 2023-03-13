@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta author = "Nicolas Agudelo">
+        <meta description = "Explicacion de como utilizar el script de Fever Clients">
+        <title>Fever Report Script</title>
+
+<style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+.katex-error {
+	color: var(--vscode-editorError-foreground);
+}
+
+/* From extension ms-toolsai.jupyter */
+/* These classnames are inherited from bootstrap, but are present in most notebook renderers */
+
+.alert {
+    width: auto;
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+.alert > *:last-child {
+    margin-bottom: 0;
+}
+#preview > .alert:last-child {
+    /* Prevent this being set to zero by the default notebook stylesheet */
+    padding-bottom: 1em;
+}
+
+.alert-success {
+    /* Note there is no suitable color available, so we just copy "info" */
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-info {
+    background-color: var(--theme-info-background);
+    color: var(--theme-info-foreground);
+}
+.alert-warning {
+    background-color: var(--theme-warning-background);
+    color: var(--theme-warning-foreground);
+}
+.alert-danger {
+    background-color: var(--theme-error-background);
+    color: var(--theme-error-foreground);
+}
+
+figure {
+    display: flex;
+    flex-flow: column;
+    padding: 5px;
+    margin: auto;
+}
+
+figcaption {
+    background-color: #222;
+    color: #fff;
+    font: italic smaller sans-serif;
+    padding: 3px;
+    text-align: center;
+    align-self: center;
+}
+
+img{
+    align-self: center;
+}
+
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="fever-report-script">Fever Report Script</h1>
+<p>Guia para obtener el archivo de fever client automaticamente.</p>
+<p><strong><em style = "color: red;">Consejo:</em></strong> Para ejecutar el script mas rapidamente es mejor copiar y pegar en la maquina local la carpeta de <code style="background-color: lightgray;">Version 2.1</code> o extraer el archivo <code style="background-color: lightgray;">AutoFever.rar</code> localmente en lugar de ejecutarlo directamente desde el disco compartido F:</p>
+<hr>
+<h2 id="tabla-de-contenidos">Tabla de Contenidos</h2>
+<hr>
+<ul>
+<li><a href="#fever-report-script">Fever Client Script</a>
+<ul>
+<li><a href="#archivos-necesarios">Archivos Necesarios</a></li>
+<li><a href="#ejecutar-script">Ejecutar Script</a></li>
+<li><a href="#ejecutar-script-localmente">Ejecutar Script Localmente</a></li>
+<li><a href="#funcionamiento">Funcionamiento</a></li>
+<li><a href="#archivo-final">Archivo Final</a></li>
+</ul>
+</li>
+</ul>
+<br>
+<hr>
+<h2 id="archivos-necesarios">Archivos Necesarios</h2>
+<hr>
+<p>El programa funciona extrayendo la informacion de los documentos que obtenemos mediante <code style="background-color: lightgray;"><strong>Jasper</strong></code>.</p>
+<p>El programa necesitara los reportes de <em style="background-color: lightgray;">service availability</em> de las ultimas <strong> 4 </strong> semanas en formato <strong><code style="background-color: lightgray;">.csv</code></strong> para generar el reporte.</p>
+<p>Sin embargo en esta nueva version el mismo script se encargara de descargar los archivos desde <strong>Jasper</strong> automaticamente, lo que elimina la necesidad de descargar manualmente los archivos antes de ejecutar el programa.
+<p>Adicionalmente se necesita tener el archivo de <strong>PERMS.xlsx</strong> el la misma carpeta donde se ejecute el programa para que este funcione correctamente
+<p>Finalmente se necesita tener instalado <strong>Microsoft Edge</strong> en el equipo ya que se utilizara para descargar los archivos automaticamente.
+<br>
+<hr>
+<h2 id="ejecutar-script">Ejecutar Script</h2>
+<hr>
+<p>Por defecto el archivo se encuentra en la siguiente ruta:</p>
+<p><em><strong><code style="background-color: lightgray;">F:\NetEngineering\Group\NSG Team\Analisis Client Issues Services\Autogenerate\Version 2.1</code></p></strong></em>
+<p>Dentro de esta ruta se encuentra el archivo <strong><code style="background-color: lightgray;">AutoFever.exe</code></strong> que es el que se encargara de generar el reporte.</p>
+<p>Desde esta ruta se puede ejecutar el archivo sin inconvenientes sin embargo al ejecutarse en un disco compartido va a funcionar (mucho) mas lentamente, por lo que es mejor ejecutarlo localmente si es posible.</p>
+<br>
+<hr>
+<h2 id="ejecutar-script-localmente">Ejecutar Script Localmente</h2>
+<hr>
+<p>Para ejecutar el script localmente se puede copiar y pegar el archivo comprimido <strong><code style="background-color: lightgray;">AutoFever.rar</code></strong> en el lugar donde se desee ejecutar el programa (en el escritorio por ejemplo) y despues descomprimirlo en esta ubicacion.</p>
+<p>El archivo comprimido se puede encontrar en la siguiente ruta</p>
+<p><strong><em><code style="background-color: lightgray;">F:\NetEngineering\Group\NSG Team\Analisis Client Issues Services\Autogenerate</code></p></strong></em>
+<p><strong><em style = "color: red;">Nota:</em></strong> Es posible que el antivirus detecte este archivo como un virus y no permita ejecutarlo para evitar esto habra que agregar el archivo como excepcion dentro del antivirus o alternativamente se puede ejecutar directamente dentro del disco F:.</p>
+<br>
+<hr>
+<h2 id="funcionamiento">Funcionamiento</h2>
+<hr>
+<ol>
+<li>
+<p>Una vez se ejecute, el programa abrira una linea de comandos y posteriormente se abrira una ventana de Microsoft Edge, se vera que se ejecutan acciones en esta ventana automaticamente, no es necesario hacer nada en esta ventana se puede seguir utilizando el computador o esperar a que finalice de descargar los archivos.</p>
+<p><strong><em style = "color: red;">Nota:</em></strong> Si se ejecuta desde el disco compartido F: es posible que el script se demore unos segundos en abrir la ventana donde pide los archivos, sin embargo, si la linea de comando esta abierta significa que el programa se esta ejecutando. En este caso solo hay que esperar unos segundos a que aparezca la ventana.</p>
+
+<!-- <figure align = "center">
+    <img src="https://i.imgur.com/rZB7KW8.gif" alt="Seleccionar Archivos" title="Selecionar Archivos" >
+    <figcaption align = "center">
+        Seleccionar Archivos CSV</figcaption>
+</figure> -->
+
+</li>
+<br>
+<li>
+<p>Una vez se hayan descargado los 4 archivos el programa creara un archivo previo de excel con la informacion que recopilo de estos archivos de esta forma podemos revisar la informacion antes de generar el archivo final. Si encuentra algun espacio en blanco de donde no pueda obtener informacion se mostrara en la tabla como <code>---> NO INFO <---</code>habra que revisar el porque este campo no tiene informacion y en caso de hacerse cambios en Jira ejecutar el programa nuevamente para que descargue la informacion actualizada.</p>
+<figure align = "center">
+    <img src="https://i.imgur.com/IxxqqMb.png" alt="Tabla con la informacion" title="Tabla con la informacion">
+    <figcaption align = "center">
+        Tabla con los datos extraidos  
+    </figcaption>
+</figure>
+<ul>
+<li>
+<p>Se han agregado filtros tambien a las columnas para que se pueda filtrar por campos sin informacion, permanentes en especifico o cualquier valor por el que se desee filtrar</p>
+<figure align = "center">
+    <img src="https://i.imgur.com/4zWbnFo.png" alt="Filtros" title="Filtros">
+    <figcaption align = "center">
+        Ejemplo aplicando un filtro  
+    </figcaption>
+</figure>
+</li>
+<li>
+<p>En caso de que haya algo que se desee modificar se puede cerrar la linea de comando y modificar la informacion en Jira para generar un nuevo archivo .csv correspondiente a la semana en la que hicimos la modificacion y despues volver a ejecutar la aplicacion.</p>
+</li>
+<li>
+<p>En caso contrario podemos oprimir <code>Enter</code> en el teclado para que el programa genere el archivo final.</p>
+</li>
+</ul>
+<p><strong><em style = "color: red;">Nota:</em></strong> Si se ejecuta desde el disco compartido F: es posible que el script no registre inmediatamente cuando se oprima la tecla Enter. En este caso probar presionando Enter nuevamente.</p>
+</li>
+<br>
+<li>
+<p>En este punto se generara un archivo de excel con el nombre <code>Report from {date}.xlsx</code>. donde el espacio marcado como {date} colocara las fechas de inicio y final del reporte automaticamente. En la linea de comando se indicara la ruta donde fue creado el archivo (siempre es la ruta en donde este el archivo script.exe).</p>
+<p>Para continuar oprimir la tecla Enter.</p>
+<figure align = "center">
+    <img src="https://i.imgur.com/xc8E0LR.jpg" alt="Ruta Archivo" title="Ruta Archivo" >
+    <figcaption align = "center">Ruta del Archivo</figcaption>
+</figure>
+</li>
+<br>
+<li>
+<p>El programa abrira el archivo para que pueda ser visualizado y modificado, una vez se haya terminado de modificar se puede guardar y cerrar el archivo.</p>
+<p><strong><em style = "color: red;">Nota:</em></strong> Si se ejecuta desde el disco compartido F: es posible que Excel se ejecute pero no abra el archivo. Si esto ocurre habra que abrir el archivo manualmente.</p>
+<!-- <figure align = "center">
+    <img src="https://i.imgur.com/Gncy4bG.png" alt="Archivo generado automaticamente" title="Archivo generado automaticamente">
+    <figcaption align = "center">
+        Archivo generado por el script
+    </figcaption>
+</figure> -->
+<figure align = "center">
+    <img src="https://i.imgur.com/cy4GijU.png" alt="Archivo Formateado" title="Archivo Formateado">
+    <figcaption align = "center">
+        Archivo ya formateado
+    </figcaption>
+</figure>
+</li>
+<br>
+<li>
+<p>Oprimiendo nuevamente enter en la linea de comando el programa enviara automaticamente el archivo hacia el correo de Network Support para una ultima verificacion, desde aqui se podra reenviar facilmente a los destinatarios que se deseen.</p>
+
+<figure align = "center">
+    <img src="https://i.imgur.com/V0yRFog.png" alt="Enviar correo" title="Enviar correo">
+    <figcaption align = "center">
+        Enviar correo
+    </figcaption>
+</figure>
+</li>
+
+</ol>
+<br>
+<hr>
+<h2 id="archivo-final">Archivo Final</h2>
+<hr>
+<p>En esta nueva version el archivo final contara ya con el filtro organizado de mayor a menor en la columna de Total y tambien con las causas raices listadas, solo sera necesario modificar informacion en caso de que se desee y una vez se guarde se enviara automaticamente al correo de Network Support.</p>
+
+
+        
+        
+</body>
+</html>

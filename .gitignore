@@ -1,0 +1,9 @@
+venv
+*.spec
+__pycache__
+build
+dist
+GeneratedCSVs
+*.xlsx
+*.ico
+test.py

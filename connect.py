@@ -3,11 +3,10 @@
 from  selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from time import sleep
 import datetime
 from pathlib import Path
 from os import rename, mkdir
-from shutil import move, rmtree
+from shutil import rmtree
 
 downloads_path = str(Path.home() / "Downloads")
 
@@ -87,6 +86,7 @@ def main(working_directory):
                 continue
 
         while True:
+            # Agregar manejo para eliminar archivos previos con el mismo nombre de la carpeta.
             try:
                 rename("{download_folder}/MonthlyServiceAvailability.csv".format(download_folder = downloads_path), '{desktop_folder}/GeneratedCSVs/{index}. Report from {monday} to {sunday}.csv'.format(desktop_folder = working_directory, monday = last_monday, sunday = this_sunday, index = index - 1))
                 break
@@ -109,4 +109,5 @@ def main(working_directory):
                 # print(error)
                 continue
         week += 1
+    driver.quit()
     return weeks_list
