@@ -250,6 +250,7 @@ ws.column_dimensions['V'].width = 78.43
 fill_cell = PatternFill(patternType='solid', fgColor='DCE6F1')
 # Define the font and borders
 text_color = Font(color='000000', bold=True)
+red_text_color = Font(color='FF0000', bold=True)
 medium = Side(border_style="medium", color="000000")
 thin = Side(border_style="thin", color="000000")
 # Adding comments columns 
@@ -334,6 +335,20 @@ for cell in ws["T:T"]:
 
 ws.auto_filter.add_sort_condition("T:T",descending=True)
 ws.conditional_formatting.add("Q4:T{conditional}".format(conditional = conditional_cells), rule)
+
+#Highlight if there is any missing information that needs to be added manually
+
+for cell in ws["B:B"]:
+    if cell.value == 'Customer not found, add manually':
+        cell.font = red_text_color
+
+for cell in ws["C:C"]:
+    if cell.value == 'Origin not found, add manually':
+        cell.font = red_text_color
+
+for cell in ws["D:D"]:
+    if cell.value == 'Destination not found, add manually':
+        cell.font = red_text_color
 
 #Save the styled file.
 while True:

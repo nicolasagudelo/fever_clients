@@ -1,11 +1,12 @@
 # Author: Nicolas Agudelo.
 
+import os.path
 from  selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import datetime
 from pathlib import Path
-from os import rename, mkdir
+from os import rename, mkdir, remove
 from shutil import rmtree
 
 downloads_path = str(Path.home() / "Downloads")
@@ -14,7 +15,10 @@ today = datetime.date.today()
 
 username = "nmc"
 
-driver = webdriver.Edge('msedgedriver')
+try:
+    driver = webdriver.Edge('msedgedriver')
+except:
+    input("The webdriver needed to run the script is outdated, please download the last stable version from: \nhttps://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/\nReplace the webdriver on the script folder and run it once again.\nPress Enter to exit the script.")
 weeks_list = []
 
 def main(working_directory):
@@ -76,7 +80,10 @@ def main(working_directory):
         buttons = driver.find_elements(By.CLASS_NAME, "insidebutton")
         buttons[1].click()
 
-        # sleep(10)
+        if os.path.exists('{downloads_path}/MonthlyServiceAvailability.csv'.format(downloads_path = downloads_path)):
+                   remove('{downloads_path}/MonthlyServiceAvailability.csv'.format(downloads_path = downloads_path))
+
+         # sleep(10)
         while True:
             try:
                 img_tag_elements = driver.find_elements(By.TAG_NAME, 'img')
@@ -86,9 +93,9 @@ def main(working_directory):
                 continue
 
         while True:
-            # Agregar manejo para eliminar archivos previos con el mismo nombre de la carpeta.
+            
             try:
-                rename("{download_folder}/MonthlyServiceAvailability.csv".format(download_folder = downloads_path), '{desktop_folder}/GeneratedCSVs/{index}. Report from {monday} to {sunday}.csv'.format(desktop_folder = working_directory, monday = last_monday, sunday = this_sunday, index = index - 1))
+                rename("{downloads_path}/MonthlyServiceAvailability.csv".format(downloads_path = downloads_path), '{desktop_folder}/GeneratedCSVs/{index}. Report from {monday} to {sunday}.csv'.format(desktop_folder = working_directory, monday = last_monday, sunday = this_sunday, index = index - 1))
                 break
             # If Source is a file 
             # but destination is a directory
