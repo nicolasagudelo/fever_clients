@@ -251,6 +251,7 @@ fill_cell = PatternFill(patternType='solid', fgColor='DCE6F1')
 # Define the font and borders
 text_color = Font(color='000000', bold=True)
 red_text_color = Font(color='FF0000', bold=True)
+gray_text_color = Font(color ='E6E6E6', bold =False)
 medium = Side(border_style="medium", color="000000")
 thin = Side(border_style="thin", color="000000")
 # Adding comments columns 
@@ -349,6 +350,12 @@ for cell in ws["C:C"]:
 for cell in ws["D:D"]:
     if cell.value == 'Destination not found, add manually':
         cell.font = red_text_color
+
+# Change color of values = 0 to a lighter tone for better visual representation.
+for value in {"E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P" }:
+    for cell in ws[f"{value}:{value}"]:
+        if cell.value == 0:
+            cell.font = gray_text_color
 
 #Save the styled file.
 while True:
