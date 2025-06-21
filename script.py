@@ -248,6 +248,7 @@ ws.column_dimensions['U'].width = 78.43
 ws.column_dimensions['V'].width = 78.43
 # Fill the headers with the selected color.
 fill_cell = PatternFill(patternType='solid', fgColor='DCE6F1')
+salmon_fill = PatternFill(patternType="solid", fgColor='F2DCDB')
 # Define the font and borders
 text_color = Font(color='000000', bold=True)
 red_text_color = Font(color='FF0000', bold=True)
@@ -352,10 +353,18 @@ for cell in ws["D:D"]:
         cell.font = red_text_color
 
 # Change color of values = 0 to a lighter tone for better visual representation.
-for value in {"E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P" }:
+for value in {"E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"}:
     for cell in ws[f"{value}:{value}"]:
+        if cell.row in {1,2,3}:
+            continue
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+        if value in {"Q", "R", "S", "T"}:
+            continue
         if cell.value == 0:
             cell.font = gray_text_color
+        elif cell.value in {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20}:
+            cell.fill = salmon_fill
+
 
 #Save the styled file.
 while True:
